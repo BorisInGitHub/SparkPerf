@@ -1,0 +1,42 @@
+<!--
+
+    Copyright (c) 2010-2016 SEMSOFT <http://www.semsoft-corp.com/>.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the license for SEMSOFT software,
+    which accompanies this distribution.
+
+-->
+<configuration>
+    <property>
+        <name>yarn.resourcemanager.scheduler.address</name>
+        <value>maprdemo:8030</value>
+        <source>programatically</source>
+    </property>
+    <property>
+        <name>yarn.resourcemanager.principal</name>
+        <value>maprdemo</value>
+    </property>
+    <property>
+        <name>yarn.resourcemanager.resource-tracker.address</name>
+        <value>maprdemo:8031</value>
+        <source>programatically</source>
+    </property>
+    <property>
+        <name>yarn.resourcemanager.address</name>
+        <value>maprdemo:8032</value>
+        <source>programatically</source>
+    </property>
+
+    <property>
+        <name>yarn.resourcemanager.hostname</name>
+        <value>maprdemo</value>
+        <source>programatically</source>
+    </property>
+
+    <!--<property>-->
+    <!--<name>yarn.application.classpath</name>-->
+    <!--<value>/opt/mapr/spark/spark-1.1.0-bin-2.4.1-mapr-1408/lib/spark-assembly-1.1.0-hadoop2.4.1-mapr-1408.jar,/opt/mapr/hadoop/hadoop-2.4.1/etc/hadoop,/opt/mapr/hadoop/hadoop-2.4.1/etc/hadoop,/opt/mapr/hadoop/hadoop-2.4.1/etc/hadoop,/opt/mapr/hadoop/hadoop-2.4.1/share/hadoop/common/lib/*,/opt/mapr/hadoop/hadoop-2.4.1/share/hadoop/common/*,/opt/mapr/hadoop/hadoop-2.4.1/share/hadoop/hdfs,/opt/mapr/hadoop/hadoop-2.4.1/share/hadoop/hdfs/lib/*,/opt/mapr/hadoop/hadoop-2.4.1/share/hadoop/hdfs/*,/opt/mapr/hadoop/hadoop-2.4.1/share/hadoop/yarn/lib/*,/opt/mapr/hadoop/hadoop-2.4.1/share/hadoop/yarn/*,/opt/mapr/hadoop/hadoop-2.4.1/share/hadoop/mapreduce/lib/*,/opt/mapr/hadoop/hadoop-2.4.1/share/hadoop/mapreduce/*,/contrib/capacity-scheduler/*.jar,/opt/mapr/hadoop/hadoop-2.4.1/share/hadoop/yarn/*,/opt/mapr/hadoop/hadoop-2.4.1/share/hadoop/yarn/lib/*</value>-->
+    <!--</property>-->
+
+
+</configuration>

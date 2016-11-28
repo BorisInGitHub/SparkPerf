@@ -1,0 +1,66 @@
+<!--
+
+    Copyright (c) 2010-2016 SEMSOFT <http://www.semsoft-corp.com/>.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the license for SEMSOFT software,
+    which accompanies this distribution.
+
+-->
+<configuration>
+    <property>
+        <name>fs.defaultFS</name>
+        <!--See https://community.mapr.com/thread/7666 ... it's on very old thread ...-->
+        <!--<name>fs.default.name</name>-->
+        <value>maprfs:///</value>
+        <!--<value>hdfs://maprdemo:8020/</value>-->
+        <source>core-default.xml</source>
+    </property>
+
+
+    <!-- Essai pour la configuration de maprfs ... -->
+    <property>
+        <name>fs.maprfs.impl</name>
+        <value>com.mapr.fs.MapRFileSystem</value>
+    </property>
+
+    <property>
+        <name>mapr.mapred.localvolume.mount.path</name>
+        <value>${mapr.localvolumes.path}/${mapr.host}/mapred</value>
+    </property>
+
+    <property>
+        <name>mapr.mapred.localvolume.root.dir.path</name>
+        <value>${mapr.mapred.localvolume.mount.path}/${mapr.mapred.localvolume.root.dir.name}</value>
+    </property>
+
+    <property>
+        <name>mapr.home</name>
+        <value>/opt/mapr</value>
+    </property>
+
+    <property>
+        <name>mapr.localvolumes.path</name>
+        <value>/var/mapr/local</value>
+    </property>
+
+    <property>
+        <name>mapr.host</name>
+        <value>maprdemo</value>
+    </property>
+    <property>
+        <name>fs.mapr.working.dir</name>
+        <value>/tmp/</value>
+    </property>
+
+
+    <property>
+        <name>hadoop.proxyuser.mapr.hosts</name>
+        <value>*</value>
+    </property>
+    <property>
+        <name>hadoop.proxyuser.mapr.groups</name>
+        <value>*</value>
+    </property>
+
+
+</configuration>
