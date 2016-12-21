@@ -142,7 +142,7 @@ public class HBasePerf extends AbstractPerf {
      */
     public void createTable(String tableName, List<String> familys) throws Exception {
         Admin admin = connection.getAdmin();
-        HTableDescriptor tableDescriptor = new HTableDescriptor(tableName);
+        HTableDescriptor tableDescriptor = new HTableDescriptor(TableName.valueOf(tableName));
         for (String colFamily : familys) {
             tableDescriptor.addFamily(new HColumnDescriptor(colFamily));
         }
@@ -222,12 +222,11 @@ public class HBasePerf extends AbstractPerf {
         Scan s = new Scan();
         ResultScanner ss = table.getScanner(s);
         for (Result r : ss) {
-            for (KeyValue kv : r.raw()) {
-                System.out.print(new String(kv.getRow()) + " ");
-                System.out.print(new String(kv.getFamily()) + ":");
-                System.out.print(new String(kv.getQualifier()) + " ");
-                System.out.print(kv.getTimestamp() + " ");
-                System.out.println(new String(kv.getValue()));
+            for (Cell cell : r.rawCells()) {
+                String row = new String(CellUtil.cloneRow(cell));
+                String family = new String(CellUtil.cloneFamily(cell));
+                String column = new String(CellUtil.cloneQualifier(cell));
+                String value = new String(CellUtil.cloneValue(cell));
             }
         }
     }

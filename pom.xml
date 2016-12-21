@@ -36,17 +36,17 @@
             <version>1.1.7</version>
         </dependency>
 
-        <!-- Hive -->
-        <dependency>
-            <groupId>org.apache.hive</groupId>
-            <artifactId>hive-jdbc</artifactId>
-            <version>2.1.0</version>
-        </dependency>
+        <!--&lt;!&ndash; Hive &ndash;&gt;-->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.hive</groupId>-->
+            <!--<artifactId>hive-jdbc</artifactId>-->
+            <!--<version>2.1.0</version>-->
+        <!--</dependency>-->
 
         <!-- SPARK -->
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-core_2.10</artifactId>
+            <artifactId>spark-core_2.11</artifactId>
             <version>${spark.version}</version>
             <type>jar</type>
 
@@ -87,7 +87,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-yarn_2.10</artifactId>
+            <artifactId>spark-yarn_2.11</artifactId>
             <version>${spark.version}</version>
             <type>jar</type>
             <exclusions>
@@ -128,7 +128,7 @@
 
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-sql_2.10</artifactId>
+            <artifactId>spark-sql_2.11</artifactId>
             <version>${spark.version}</version>
             <type>jar</type>
             <exclusions>
@@ -161,6 +161,19 @@
                     <artifactId>jersey-guice</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+
+        <!-- Spark CSV si spark < 2.0.0 -->
+        <dependency>
+            <groupId>com.databricks</groupId>
+            <artifactId>spark-csv_2.11</artifactId>
+            <version>1.5.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.1.0</version>
         </dependency>
 
         <!-- Mongo -->

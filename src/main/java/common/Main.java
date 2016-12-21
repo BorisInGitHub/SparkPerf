@@ -7,6 +7,7 @@ import mongo.MongoPerf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import postgresql.PostgresqlPerf;
+import spark_sql.SparkSQLLocalPerf;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -29,9 +30,9 @@ public class Main {
                 //              new HiveWithIndexPerf()
                 //new SparkLocalPerf()
 //                new HBasePerf()
-                //new SparkSQLLocalPerf()
+                new SparkSQLLocalPerf()
 //                new MongoPerf()
-                new PostgresqlPerf()
+//                new PostgresqlPerf()
         ));
     }
 
