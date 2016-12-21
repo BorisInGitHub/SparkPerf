@@ -2,12 +2,9 @@ package common;
 
 import common.perf.AbstractPerf;
 import common.perf.PerfResult;
-import hbase.HBasePerf;
-import mongo.MongoPerf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import postgresql.PostgresqlPerf;
-import spark_sql.SparkSQLLocalPerf;
+import spark_sql.SparkSQLPerf;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -30,7 +27,8 @@ public class Main {
                 //              new HiveWithIndexPerf()
                 //new SparkLocalPerf()
 //                new HBasePerf()
-                new SparkSQLLocalPerf()
+                new SparkSQLPerf()
+//        new SparkSQLCsvLibPerf()
 //                new MongoPerf()
 //                new PostgresqlPerf()
         ));
