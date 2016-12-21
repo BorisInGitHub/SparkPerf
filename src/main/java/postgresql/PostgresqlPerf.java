@@ -15,10 +15,10 @@ import java.util.List;
 /**
  * Docker
  * docker run --name postgres -h postgres -p 5432:5432 -e POSTGRES_PASSWORD=mysecretpassword -d postgres:9.6.1
- *
+ * <p>
  * puis lancé un client postgres (exemple via docker) et lancer la commande de création de database
- * docker run -it --rm --link postgres:postgres postgres psql -h postgres -U postgres
- *
+ * docker run -it --rm postgres psql -h IPMACHINE(docker0) -U postgres
+ * <p>
  * create database test;
  * <p>
  * Created by breynard on 20/12/16.
@@ -58,14 +58,22 @@ public class PostgresqlPerf extends AbstractPerf {
         connection.setAutoCommit(false);
         try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
             try (Statement statement = connection.createStatement()) {
+                int count = 0;
                 for (String line; (line = br.readLine()) != null; ) {
                     int indexChar = line.indexOf(',');
                     String id = line.substring(0, indexChar);
                     String name = line.substring(indexChar + 1);
 
                     statement.addBatch("INSERT INTO " + TABLE_NAME + " VALUES('" + id + "','" + name + "')");
+                    count++;
+                    if (count > 1024) {
+                        statement.executeBatch();
+                        count = 0;
+                    }
                 }
-                statement.executeBatch();
+                if (count > 0) {
+                    statement.executeBatch();
+                }
             }
         }
 

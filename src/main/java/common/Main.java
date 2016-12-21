@@ -28,10 +28,10 @@ public class Main {
                 //new HivePerf4()
                 //              new HiveWithIndexPerf()
                 //new SparkLocalPerf()
-                new HBasePerf()
+//                new HBasePerf()
                 //new SparkSQLLocalPerf()
-                //new MongoPerf()
-//                new PostgresqlPerf()
+//                new MongoPerf()
+                new PostgresqlPerf()
         ));
     }
 

@@ -14,7 +14,7 @@ public abstract class AbstractPerf {
     private static final String FILE_TEST = "/tmp/dataLong1709858110454081480100.txt";
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractPerf.class);
 
-    private boolean doCheck = false;
+    private boolean doCheck = true;
 
     public abstract String description();
 
@@ -67,14 +67,19 @@ public abstract class AbstractPerf {
             LOGGER.info("Comptage des données ...");
             start = System.currentTimeMillis();
             int count = countAll();
-            if (doCheck) {
-                if (count != 10000000) {
-                    LOGGER.warn("Error for count {}", count);
-                    throw new RuntimeException("Comptage incorrect");
-                }
-            }
             countDuration = System.currentTimeMillis() - start;
-            LOGGER.info("Comptage des données en {} ms.", countDuration);
+            if (count == -1) {
+                LOGGER.info("Comptage des données : Not Applicable.");
+                countDuration = -1;
+            } else {
+                if (doCheck) {
+                    if (count != 10000000) {
+                        LOGGER.warn("Error for count {}", count);
+                        throw new RuntimeException("Comptage incorrect");
+                    }
+                }
+                LOGGER.info("Comptage des données en {} ms.", countDuration);
+            }
         } finally {
             close();
         }

@@ -3,10 +3,7 @@ package hbase;
 import common.perf.AbstractPerf;
 import common.perf.Pair;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.HBaseConfiguration;
-import org.apache.hadoop.hbase.HColumnDescriptor;
-import org.apache.hadoop.hbase.HTableDescriptor;
-import org.apache.hadoop.hbase.KeyValue;
+import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
@@ -38,9 +35,15 @@ import java.util.List;
  * # HBase Master web UI at :16010/master-status;  ZK at :16010/zk.jsp
  * EXPOSE 16010
  * <p>
- *
- * Ajout de 127.0.0.1      hbase-docker    dans /etc/hosts
- *
+ * <p>
+ * git clone https://github.com/dajobe/hbase-docker.git
+ * cd hbase-docker
+ * ./start-hbase.sh
+ * <p>
+ * docker stop hbase-docker
+ * docker rm hbase-docker
+ * sudo rm -rf data
+ * <p>
  * Created by breynard on 27/10/16.
  */
 public class HBasePerf extends AbstractPerf {
@@ -48,7 +51,8 @@ public class HBasePerf extends AbstractPerf {
     protected static final String COL_KEY_NAME = "colkey";
     protected static final String COL_VALUE_NAME = "colvalue";
     private static final Logger LOGGER = LoggerFactory.getLogger(HBasePerf.class);
-    private Configuration configuration;
+
+    private Connection connection;
 
 
     @Override
@@ -58,12 +62,12 @@ public class HBasePerf extends AbstractPerf {
 
     @Override
     public void connect() throws Exception {
-        configuration = HBaseConfiguration.create();
+        Configuration configuration = HBaseConfiguration.create();
         configuration.setInt("timeout", 120000);
-        configuration.set("hbase.master", "*" + "localhost" + ":16010*");
-        configuration.set("hbase.zookeeper.quorum", "localhost");
+        configuration.set("hbase.master", "*" + "hbase-docker" + ":16010*");
+        configuration.set("hbase.zookeeper.quorum", "hbase-docker");
         configuration.set("hbase.zookeeper.property.clientPort", "2181");
-
+        connection = ConnectionFactory.createConnection(configuration);
     }
 
     @Override
@@ -71,7 +75,9 @@ public class HBasePerf extends AbstractPerf {
         createTable(TABLE_NAME, Arrays.asList(COL_VALUE_NAME));
 
         // Lecture des données
-        HTable table = new HTable(configuration, TABLE_NAME);
+        Table table = connection.getTable(TableName.valueOf(TABLE_NAME));
+        int bufferSize = 1024;
+        List<Put> puts = new ArrayList<>(bufferSize);
         try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
             for (String line; (line = br.readLine()) != null; ) {
                 int indexChar = line.indexOf(',');
@@ -79,20 +85,42 @@ public class HBasePerf extends AbstractPerf {
                 String name = line.substring(indexChar + 1);
 
                 Put put = new Put(Bytes.toBytes(id));
-                put.add(Bytes.toBytes(COL_VALUE_NAME), Bytes.toBytes(""), Bytes.toBytes(name));
-                table.put(put);
+                put.addColumn(Bytes.toBytes(COL_VALUE_NAME), Bytes.toBytes(COL_VALUE_NAME), Bytes.toBytes(name));
+                puts.add(put);
+
+                if (puts.size() >= bufferSize) {
+                    table.put(puts);
+                    puts.clear();
+                }
+
+            }
+            if (!puts.isEmpty()) {
+                table.put(puts);
+                puts.clear();
             }
         }
     }
 
     @Override
     public List<Pair<String, String>> searchId(String id) throws Exception {
-        HTable table = new HTable(configuration, TABLE_NAME);
-        Get get = new Get(id.getBytes());
-        Result rs = table.get(get);
         List<Pair<String, String>> result = new ArrayList<>();
-        for (KeyValue kv : rs.raw()) {
-            result.add(new Pair<>(new String(kv.getRow()), new String(kv.getValue())));
+        Table table = connection.getTable(TableName.valueOf(TABLE_NAME));
+
+        // Create a new Get request and specify the rowId passed by the user.
+        Result resultTable = table.get(new Get(id.getBytes()));
+
+        // Iterate of the results. Each Cell is a value for column
+        // so multiple Cells will be processed for each row.
+        for (Cell cell : resultTable.listCells()) {
+            // We use the CellUtil class to clone values
+            // from the returned cells.
+            String row = new String(CellUtil.cloneRow(cell));
+            String family = new String(CellUtil.cloneFamily(cell));
+            String column = new String(CellUtil.cloneQualifier(cell));
+            String value = new String(CellUtil.cloneValue(cell));
+
+            if (column.equals(COL_VALUE_NAME) || family.equals(COL_VALUE_NAME))
+                result.add(new Pair<String, String>(row, value));
         }
         return result;
     }
@@ -104,42 +132,50 @@ public class HBasePerf extends AbstractPerf {
 
     @Override
     public void close() throws Exception {
-
+        if (connection != null) {
+            connection.close();
+        }
     }
 
     /**
      * Create a table
      */
     public void createTable(String tableName, List<String> familys) throws Exception {
-        HBaseAdmin admin = new HBaseAdmin(configuration);
-        if (admin.tableExists(tableName)) {
-            LOGGER.warn("Table already exists");
-        } else {
-            HTableDescriptor tableDesc = new HTableDescriptor(tableName);
-            for (String family : familys) {
-                tableDesc.addFamily(new HColumnDescriptor(family));
-            }
-            admin.createTable(tableDesc);
+        Admin admin = connection.getAdmin();
+        HTableDescriptor tableDescriptor = new HTableDescriptor(tableName);
+        for (String colFamily : familys) {
+            tableDescriptor.addFamily(new HColumnDescriptor(colFamily));
         }
+        admin.createTable(tableDescriptor);
     }
 
     /**
      * Delete a table
      */
     public void deleteTable(String tableName) throws Exception {
-        HBaseAdmin admin = new HBaseAdmin(configuration);
-        admin.disableTable(tableName);
-        admin.deleteTable(tableName);
+        Admin admin = connection.getAdmin();
+        admin.disableTable(TableName.valueOf(tableName));
+        admin.deleteTable(TableName.valueOf(tableName));
     }
 
     /**
      * Put (or insert) a row
      */
-    public void addRecord(String tableName, String rowKey, String family, String qualifier, String value) throws Exception {
-        HTable table = new HTable(configuration, tableName);
+    public void addRecord(String tableName, String rowKey, String colName, String value) throws Exception {
+        Table table = connection.getTable(TableName.valueOf(tableName));
+        addRecord(table, rowKey, colName, value);
+    }
+
+    private void addRecord(Table table, String rowKey, String colName, String value) throws IOException {
+        // Create a new Put request.
         Put put = new Put(Bytes.toBytes(rowKey));
-        put.add(Bytes.toBytes(family), Bytes.toBytes(qualifier), Bytes
-                .toBytes(value));
+
+        // Here we add only one column value to the row but
+        // multiple column values can be added to the row at
+        // once by calling this method multiple times.
+        put.addColumn(Bytes.toBytes(colName), Bytes.toBytes(colName), Bytes.toBytes(value));
+
+        // Execute the put on the table.
         table.put(put);
     }
 
@@ -147,7 +183,7 @@ public class HBasePerf extends AbstractPerf {
      * Delete a row
      */
     public void delRecord(String tableName, String rowKey) throws IOException {
-        HTable table = new HTable(configuration, tableName);
+        Table table = connection.getTable(TableName.valueOf(tableName));
         List<Delete> list = new ArrayList<>();
         Delete del = new Delete(rowKey.getBytes());
         list.add(del);
@@ -158,15 +194,23 @@ public class HBasePerf extends AbstractPerf {
      * Get a row
      */
     public void getOneRecord(String tableName, String rowKey) throws IOException {
-        HTable table = new HTable(configuration, tableName);
-        Get get = new Get(rowKey.getBytes());
-        Result rs = table.get(get);
-        for (KeyValue kv : rs.raw()) {
-            System.out.print(new String(kv.getRow()) + " ");
-            System.out.print(new String(kv.getFamily()) + ":");
-            System.out.print(new String(kv.getQualifier()) + " ");
-            System.out.print(kv.getTimestamp() + " ");
-            System.out.println(new String(kv.getValue()));
+
+        Table table = connection.getTable(TableName.valueOf(tableName));
+
+        // Create a new Get request and specify the rowId passed by the user.
+        Result result = table.get(new Get(rowKey.getBytes()));
+
+        // Iterate of the results. Each Cell is a value for column
+        // so multiple Cells will be processed for each row.
+        for (Cell cell : result.listCells()) {
+            // We use the CellUtil class to clone values
+            // from the returned cells.
+            String row = new String(CellUtil.cloneRow(cell));
+            String family = new String(CellUtil.cloneFamily(cell));
+            String column = new String(CellUtil.cloneQualifier(cell));
+            String value = new String(CellUtil.cloneValue(cell));
+            long timestamp = cell.getTimestamp();
+            System.out.printf("%-20s column=%s:%s, timestamp=%s, value=%s\n", row, family, column, timestamp, value);
         }
     }
 
@@ -174,7 +218,7 @@ public class HBasePerf extends AbstractPerf {
      * Scan (or list) a table
      */
     public void getAllRecord(String tableName) throws IOException {
-        HTable table = new HTable(configuration, tableName);
+        Table table = connection.getTable(TableName.valueOf(tableName));
         Scan s = new Scan();
         ResultScanner ss = table.getScanner(s);
         for (Result r : ss) {

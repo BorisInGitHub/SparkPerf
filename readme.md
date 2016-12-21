@@ -34,18 +34,18 @@ Vu le temps imparti pour des résultats concrets, nous allons chercher à être 
 
 |Cas|Préparation des données|Search by Id|Count All|
 |---|---|---|---|
-|Hive brut (sans index ou autre)|3490ms|2334ms|24220ms|
-|Hive brut (sans index ou autre) - Key en String|802ms|**4416ms**|22121ms|
-|Hive avec index|123761ms|2415ms|25034ms|
+|Hive brut (sans index ou autre)|3 490ms|2 334ms|24 220ms|
+|Hive brut (sans index ou autre) - Key en String|802ms|**4 416ms**|22 121ms|
+|Hive avec index|123 761ms|2 415ms|2 5034ms|
 |Spark brut en local (pas sur la VM)|ms|ms|ms|
 |Spark brut yarn-client|ms|ms|ms|
-|HBase|ms|ms|ms|
-|Mongo (3.4)|42901ms|5ms|3ms|
-|PostgreSQL (9.6.1)|372593ms|37ms|2095ms|
+|HBase|45 031ms|10ms|Not applicable|
+|Mongo (3.4)|40 830ms|4ms|2ms|
+|PostgreSQL (9.6.1)|274 231ms|2ms|661ms|
 
 Remarques: 
 * L'index de Hive n'a pas l'air de fonctionner dans mon cas. En faite Hive va utiliser l'index pour savoir sur quelle partition envoyer les données. Comme nous avons qu'une seule partition, l'index Hive ne sert à rien dans ce cas d'usage !
 * PostgreSQL, pour le chargement des données, nous avons utiliser la méthode INSERT, il est recommandé d'utiliser la méthode COPY (beaucoup plus rapide)
-
+* Je n'ai pas trouvé comment faire un count avec HBase (sinon un genre de selectAll puis on compte ...)
 
 _**TO BE CONTINUED ...**_

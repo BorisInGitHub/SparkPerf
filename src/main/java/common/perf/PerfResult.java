@@ -17,6 +17,10 @@ public class PerfResult {
 
     @Override
     public String toString() {
-        return "\tpreparationDuration=" + preparationDuration + "ms\t searchDuration=" + searchDuration + "ms\t countDuration=" + countDuration + "ms";
+        if (countDuration == -1) {
+            return "\tpreparationDuration=" + preparationDuration + "ms\t searchDuration=" + searchDuration + "ms\t countDuration=Not Applicable";
+        } else {
+            return "\tpreparationDuration=" + preparationDuration + "ms\t searchDuration=" + searchDuration + "ms\t countDuration=" + countDuration + "ms";
+        }
     }
 }
