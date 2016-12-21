@@ -19,6 +19,7 @@ Plusieurs pistes :
 Vu le temps imparti pour des résultats concrets, nous allons chercher à être le plus efficace et donc certaines pistes risques de ne pas être exploitées.
 
 ##Environnement
+* La machine de test est mon environnement de développement : CPU 4 coeurs (i5-6500 @ 3.2GHz) et 16Go de RAM.
 * VM MapR en local sur mon poste (il n'y a pas d'intérêt de tester la performance sur plusieurs nœuds si ces nœuds sont des VMs sur la même machine hôte). 
 * MapR est en version 5.1 => Hive en 1.2.1 (ou 0.13)
 * le fichier de données comporte 2 colonnes (id et nom) et contient 10 000 000 de lignes.
@@ -37,9 +38,10 @@ Vu le temps imparti pour des résultats concrets, nous allons chercher à être 
 |Hive brut (sans index ou autre)|3 490ms|2 334ms|24 220ms|
 |Hive brut (sans index ou autre) - Key en String|802ms|**4 416ms**|22 121ms|
 |Hive avec index|123 761ms|2 415ms|2 5034ms|
-|Spark 1.6.1 en local (pas sur la VM) (via librairie Spark CSV)|14 934ms|877ms|714ms|
-|Spark 1.6.1 en local (pas sur la VM)|6 025ms|859ms|735ms|
-|Spark 1.6.1 en local (pas sur la VM) (fichiers splittés)|197 302ms|1027ms|762ms|
+|Spark SQL 1.6.1 en local (pas sur la VM) (via librairie Spark CSV)|14 934ms|877ms|714ms|
+|Spark SQL 1.6.1 en local (pas sur la VM)|6 025ms|859ms|735ms|
+|Spark SQL 1.6.1 en local (pas sur la VM) (fichiers splittés)|197 302ms|1 027ms|762ms|
+|Spark 1.6.1 en local (pas sur la VM) (Classes utilisateurs)|ms|ms|ms|
 |Spark 1.6.1 via yarn-client|ms|ms|ms|
 |HBase|45 031ms|10ms|Not applicable|
 |Mongo (3.4)|40 830ms|4ms|2ms|

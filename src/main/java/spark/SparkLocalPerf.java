@@ -50,8 +50,8 @@ public class SparkLocalPerf extends AbstractPerf {
                 .set("spark.ui.enabled", "false")
                 .set("spark.ui.showConsoleProgress", "false")
                 // Mémoire
-                .setExecutorEnv("SPARK_DRIVER_MEMORY", "4G")
-                .setExecutorEnv("SPARK_JAVA_OPTS", "-Xms4g -Xmx4g -XX:MaxPermSize=2g -XX:+UseG1GC");
+                .setExecutorEnv("SPARK_DRIVER_MEMORY", "8G")
+                .setExecutorEnv("SPARK_JAVA_OPTS", "-Xms8g -Xmx8g -XX:MaxPermSize=2g -XX:+UseG1GC");
 
         SparkContext spark = new SparkContext(conf);
         javaSparkContext = new JavaSparkContext(spark);
@@ -95,7 +95,7 @@ public class SparkLocalPerf extends AbstractPerf {
         // Persistance des données dans spark
         //JavaRDD<SparkData> parallelize = javaSparkContext.parallelize(datas);
         //parallelize.saveAsObjectFile(SPARK_OBJECT_FILE_NAME);
-        DataFrame dataFrame = sqlContext.createDataFrame(datas, SparkData.class);
+        DataFrame dataFrame = sqlContext.createDataFrame(datas, SparkData.class).unpersist();
         //dataFrame.write().parquet(SPARK_OBJECT_FILE_NAME + File.separator + paquetIndex);
         dataFrame.write().save(SPARK_OBJECT_FILE_NAME + File.separator + paquetIndex);
     }

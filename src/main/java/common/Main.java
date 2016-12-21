@@ -4,6 +4,7 @@ import common.perf.AbstractPerf;
 import common.perf.PerfResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import spark.SparkLocalPerf;
 import spark_sql.SparkSQLPerf;
 
 import java.util.Arrays;
@@ -25,9 +26,9 @@ public class Main {
                 //new HivePerf3(),
                 //new HivePerf4()
                 //              new HiveWithIndexPerf()
-                //new SparkLocalPerf()
+                new SparkLocalPerf()
 //                new HBasePerf()
-                new SparkSQLPerf()
+//                new SparkSQLPerf()
 //        new SparkSQLCsvLibPerf()
 //                new MongoPerf()
 //                new PostgresqlPerf()
