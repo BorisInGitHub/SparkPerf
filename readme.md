@@ -40,7 +40,12 @@ Vu le temps imparti pour des résultats concrets, nous allons chercher à être 
 |Spark brut en local (pas sur la VM)|ms|ms|ms|
 |Spark brut yarn-client|ms|ms|ms|
 |HBase|ms|ms|ms|
+|Mongo (3.4)|42901ms|5ms|3ms|
+|PostgreSQL (9.6.1)|372593ms|37ms|2095ms|
 
-_Rq: L'index de Hive n'a pas l'air de fonctionner dans mon cas !_
+Remarques: 
+* L'index de Hive n'a pas l'air de fonctionner dans mon cas. En faite Hive va utiliser l'index pour savoir sur quelle partition envoyer les données. Comme nous avons qu'une seule partition, l'index Hive ne sert à rien dans ce cas d'usage !
+* PostgreSQL, pour le chargement des données, nous avons utiliser la méthode INSERT, il est recommandé d'utiliser la méthode COPY (beaucoup plus rapide)
+
 
 _**TO BE CONTINUED ...**_

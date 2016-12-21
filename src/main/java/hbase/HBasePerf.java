@@ -20,6 +20,27 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
+ * https://hub.docker.com/r/dajobe/hbase/
+ * <p>
+ * Docker
+ * docker run --name=hbase-docker -h hbase-docker  -p 8080:8080 -p 8085:8085 -p 9090:9090 -p 9095:9095 -p 2181:2181 -p 16010:16010 -d -v $PWD/data:/data dajobe/hbase
+ * <p>
+ * # REST API
+ * EXPOSE 8080
+ * # REST Web UI at :8085/rest.jsp
+ * EXPOSE 8085
+ * # Thrift API
+ * EXPOSE 9090
+ * # Thrift Web UI at :9095/thrift.jsp
+ * EXPOSE 9095
+ * # HBase's Embedded zookeeper cluster
+ * EXPOSE 2181
+ * # HBase Master web UI at :16010/master-status;  ZK at :16010/zk.jsp
+ * EXPOSE 16010
+ * <p>
+ *
+ * Ajout de 127.0.0.1      hbase-docker    dans /etc/hosts
+ *
  * Created by breynard on 27/10/16.
  */
 public class HBasePerf extends AbstractPerf {
@@ -38,6 +59,11 @@ public class HBasePerf extends AbstractPerf {
     @Override
     public void connect() throws Exception {
         configuration = HBaseConfiguration.create();
+        configuration.setInt("timeout", 120000);
+        configuration.set("hbase.master", "*" + "localhost" + ":16010*");
+        configuration.set("hbase.zookeeper.quorum", "localhost");
+        configuration.set("hbase.zookeeper.property.clientPort", "2181");
+
     }
 
     @Override
