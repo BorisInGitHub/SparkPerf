@@ -12,10 +12,61 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.5.1</version>
                 <configuration>
                     <source>1.7</source>
                     <target>1.7</target>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                    <filters>
+                        <filter>
+                            <artifact>*:*</artifact>
+                            <excludes>
+                                <exclude>META-INF/*.SF</exclude>
+                                <exclude>META-INF/*.DSA</exclude>
+                                <exclude>META-INF/*.RSA</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>worker-library-jar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <shadedArtifactAttached>true</shadedArtifactAttached>
+                            <shadedClassifierName>worker</shadedClassifierName>
+                            <artifactSet>
+                                <includes>
+                                    <!-- Fill in what you'd need here. -->
+                                    <!-- Lecture des CSVs dans Hadoop -->
+                                    <include>com.databricks:spark-csv_2.10</include>
+                                    <include>org.apache.commons:commons-csv</include>
+                                    <include>com.univocity:univocity-parsers</include>
+
+                                    <!-- Les Logs, depuis que je lit du CSV -->
+                                    <include>ch.qos.logback:logback-classic</include>
+                                    <include>ch.qos.logback:logback-core</include>
+
+                                    <include>spark_sql:*</include>
+                                </includes>
+                            </artifactSet>
+                            <transformers>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
@@ -24,11 +75,32 @@
 
 
     <properties>
-        <!--<spark.version>1.6.1-mapr-1607</spark.version>-->
-        <spark.version>1.6.1</spark.version>
+        <spark.version>1.6.1-mapr-1605</spark.version>
+        <!--<spark.version>1.6.1</spark.version>-->
+        <mapr.version>5.1.0-mapr</mapr.version>
     </properties>
 
+
+    <repositories>
+        <repository>
+            <id>mapr-releases</id>
+            <url>http://repository.mapr.com/maven/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+    </repositories>
+
     <dependencies>
+        <dependency>
+            <groupId>com.mapr.hadoop</groupId>
+            <artifactId>maprfs</artifactId>
+            <version>${mapr.version}</version>
+        </dependency>
+
         <!-- Log -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
@@ -36,19 +108,19 @@
             <version>1.1.7</version>
         </dependency>
 
-        <!--&lt;!&ndash; Hive &ndash;&gt;-->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.hive</groupId>-->
-            <!--<artifactId>hive-jdbc</artifactId>-->
-            <!--<version>2.1.0</version>-->
-        <!--</dependency>-->
+        <!-- Hive -->
+        <dependency>
+            <groupId>org.apache.hive</groupId>
+            <artifactId>hive-jdbc</artifactId>
+            <version>2.1.0</version>
+        </dependency>
 
         <!-- SPARK -->
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-core_2.11</artifactId>
+            <artifactId>spark-core_2.10</artifactId>
             <version>${spark.version}</version>
-            <type>jar</type>
+            <!--<type>jar</type>-->
 
             <exclusions>
                 <exclusion>
@@ -87,9 +159,9 @@
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-yarn_2.11</artifactId>
+            <artifactId>spark-yarn_2.10</artifactId>
             <version>${spark.version}</version>
-            <type>jar</type>
+            <!--<type>jar</type>-->
             <exclusions>
                 <exclusion>
                     <groupId>commons-logging</groupId>
@@ -128,9 +200,9 @@
 
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-sql_2.11</artifactId>
+            <artifactId>spark-sql_2.10</artifactId>
             <version>${spark.version}</version>
-            <type>jar</type>
+            <!--<type>jar</type>-->
             <exclusions>
                 <exclusion>
                     <groupId>commons-logging</groupId>
@@ -166,7 +238,7 @@
         <!-- Spark CSV si spark < 2.0.0 -->
         <dependency>
             <groupId>com.databricks</groupId>
-            <artifactId>spark-csv_2.11</artifactId>
+            <artifactId>spark-csv_2.10</artifactId>
             <version>1.5.0</version>
         </dependency>
 
@@ -197,5 +269,6 @@
             <version>1.2.4</version>
         </dependency>
     </dependencies>
+
 
 </project>

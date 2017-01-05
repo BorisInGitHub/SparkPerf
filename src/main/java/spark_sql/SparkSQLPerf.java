@@ -39,6 +39,16 @@ public class SparkSQLPerf extends AbstractPerf {
     private JavaSparkContext javaSparkContext;
     private SQLContext sqlContext;
 
+    private final String master;
+
+    /**
+     *
+     * @param master local[*] ou yarn-client
+     */
+    public SparkSQLPerf(String master) {
+        super();
+        this.master = master;
+    }
 
     @Override
     public String description() {
@@ -50,13 +60,18 @@ public class SparkSQLPerf extends AbstractPerf {
         LOGGER.info("Connection à Spark ...");
         SparkConf conf = new SparkConf()
                 .setAppName("SparkPerf")
-                .setMaster("local[*]")
+                .setMaster(master)
                 // Pas d'UI
                 .set("spark.ui.enabled", "false")
                 .set("spark.ui.showConsoleProgress", "false")
                 // Mémoire
                 .setExecutorEnv("SPARK_DRIVER_MEMORY", "4G")
-                .setExecutorEnv("SPARK_JAVA_OPTS", "-Xms4g -Xmx4g -XX:MaxPermSize=2g -XX:+UseG1GC");
+                .setExecutorEnv("SPARK_JAVA_OPTS", "-Xms4g -Xmx4g -XX:MaxPermSize=2g -XX:+UseG1GC")
+
+                .set("spark.yarn.dist.files", "maprfs://demo.mapr.com/user/spark/hivePerf-1.0-SNAPSHOT-worker.jar")
+                .set("spark.yarn.jar", "maprfs://demo.mapr.com/user/spark/spark-assembly.jar")
+                .set("spark.yarn.am.extraLibraryPath", "maprfs://demo.mapr.com/user/spark/hivePerf-1.0-SNAPSHOT-worker.jar");
+
 
         SparkContext spark = new SparkContext(conf);
         javaSparkContext = new JavaSparkContext(spark);
